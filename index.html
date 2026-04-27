@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EYE GATE - Sistema Inteligente de Controle</title>
+  <style>
+    :root {
+      --amarelo: #facc15;
+      --preto: #111827;
+      --cinza: #374151;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8fafc;
+      color: var(--preto);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--preto);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+    .logo {
+      width: 180px;
+      height: 180px;
+      background: var(--amarelo);
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 100px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    h1 { font-size: 2.8rem; margin-bottom: 8px; }
+    .subtitle { font-size: 1.3rem; opacity: 0.9; }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      padding: 30px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-8px); }
+
+    .card h2 {
+      color: var(--preto);
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    button {
+      background: var(--amarelo);
+      color: var(--preto);
+      border: none;
+      padding: 14px 32px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: #eab308;
+      transform: scale(1.05);
+    }
+
+    .alunos-lista {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      min-height: 400px;
+    }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">👁️</div>
+    <h1>EYE GATE</h1>
+    <p class="subtitle">Sistema Inteligente de Controle Facial</p>
+  </header>
+
+  <div class="container">
+    <!-- Card Novo Cadastro -->
+    <div class="card">
+      <h2>🔄 Novo Cadastro</h2>
+      <p>Inicie o processo de registro de novos alunos<br>para o sistema de catraca.</p>
+      <button onclick="abrirCadastro()">INICIAR CADASTRO →</button>
+    </div>
+
+    <!-- Card Alunos Cadastrados -->
+    <div class="card alunos-lista">
+      <h2>👥 Alunos Cadastrados <span style="font-size:0.9rem; background:#facc15; padding:2px 8px; border-radius:9999px;">0</span></h2>
+      <p id="lista-alunos">NENHUM ALUNO REGISTRADO</p>
+    </div>
+
+    <!-- Card Reconhecimento (futuro) -->
+    <div class="card">
+      <h2>📷 Reconhecimento</h2>
+      <p>Ative a câmera para identificar alunos<br>já cadastrados no banco de dados.</p>
+      <button onclick="alert('Em breve: Reconhecimento facial com câmera')">RECONHECIMENTO →</button>
+    </div>
+  </div>
+
+  <!-- Modal de Cadastro (vai abrir quando clicar em INICIAR CADASTRO) -->
+  <div id="modalCadastro" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:white; width:90%; max-width:600px; border-radius:12px; padding:30px; max-height:90vh; overflow:auto;">
+      <h2 style="text-align:center; margin-bottom:20px;">Novo Cadastro de Aluno</h2>
+      
+      <!-- Aqui vai o formulário de cadastro que já tínhamos -->
+      <form id="form-cadastro">
+        <label>Nome completo:</label>
+        <input type="text" id="nome" placeholder="Ex: João da Silva" style="width:100%; padding:12px; margin:8px 0 20px;" required>
+
+        <label>CGM:</label>
+        <input type="text" id="cgm" placeholder="Ex: 12345678" style="width:100%; padding:12px; margin:8px 0 20px;" required>
+
+        <label>Turma:</label>
+        <input type="text" id="turma" placeholder="Ex: 3A" style="width:100%; padding:12px; margin:8px 0 20px;" required>
+
+        <label>Turno:</label>
+        <select id="turno" style="width:100%; padding:12px; margin:8px 0 20px;" required>
+          <option value="">Selecione o turno</option>
+          <option value="Manhã">Manhã</option>
+          <option value="Tarde">Tarde</option>
+          <option value="Noite">Noite</option>
+        </select>
+
+        <label>Foto do aluno (rosto claro):</label>
+        <input type="file" id="foto" accept="image/*" style="margin:8px 0 20px;" required>
+
+        <button type="button" onclick="cadastrarAluno()" style="width:100%; background:#facc15;">Cadastrar Aluno</button>
+      </form>
+
+      <button onclick="fecharModal()" style="margin-top:15px; background:#e5e7eb; color:black; width:100%;">Fechar</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'https://aslcwuwijpehvhtkrahp.supabase.co';
+    const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbGN3dXdpanBlaHZodGtyYWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODI3NDQsImV4cCI6MjA5MTY1ODc0NH0.F8ac-a66w6TyNPtqR7jGaIYww-tQrJnkO44bxJOKDlw';
+
+    const supabase = Supabase.createClient(supabaseUrl, supabaseAnonKey);
+    const BUCKET_NAME = 'fotos-alunos';
+
+    function abrirCadastro() {
+      document.getElementById('modalCadastro').style.display = 'flex';
+    }
+
+    function fecharModal() {
+      document.getElementById('modalCadastro').style.display = 'none';
+    }
+
+    async function cadastrarAluno() {
+      // Mesma função de cadastro que usamos antes (copiei aqui pra ficar completo)
+      const nome = document.getElementById('nome').value.trim();
+      const cgm = document.getElementById('cgm').value.trim();
+      const turma = document.getElementById('turma').value.trim().toUpperCase();
+      const turno = document.getElementById('turno').value;
+      const arquivoFoto = document.getElementById('foto').files[0];
+
+      if (!nome || !cgm || !turma || !turno || !arquivoFoto) {
+        alert('Preencha todos os campos e escolha uma foto!');
+        return;
+      }
+
+      try {
+        const fileExt = arquivoFoto.name.split('.').pop().toLowerCase();
+        const fileName = `${cgm}.${fileExt}`;
+        const filePath = `alunos/${fileName}`;
+
+        await supabase.storage.from(BUCKET_NAME).upload(filePath, arquivoFoto, { upsert: false });
+
+        await supabase.from('alunos').insert({
+          nome_aluno: nome,
+          cgm: cgm,
+          turma: turma,
+          turno: turno,
+          foto_path: filePath
+        });
+
+        alert(`✅ Aluno ${nome} cadastrado com sucesso!`);
+        fecharModal();
+        document.getElementById('form-cadastro').reset();
+      } catch (err) {
+        alert('Erro: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
