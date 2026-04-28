@@ -3,66 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EYE GATE - Sistema Inteligente de Controle</title>
+  <title>EYE GATE - Sistema Inteligente</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <style>
     :root { --amarelo: #facc15; --preto: #111827; }
-    body { 
-      font-family: Arial, sans-serif; 
-      background: #f8fafc; 
-      margin: 0; 
-      padding: 0; 
-    }
-    header { 
-      background: var(--preto); 
-      color: white; 
-      text-align: center; 
-      padding: 40px 20px; 
-    }
-    .logo { font-size: 120px; margin-bottom: 10px; }
-    .container { 
-      max-width: 1100px; 
-      margin: 40px auto; 
-      padding: 20px; 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 30px; 
-    }
-    .card { 
-      background: white; 
-      padding: 35px; 
-      border-radius: 16px; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-      text-align: center; 
-    }
-    button { 
-      background: var(--amarelo); 
-      color: black; 
-      border: none; 
-      padding: 16px 40px; 
-      font-size: 1.1rem; 
-      font-weight: bold; 
-      border-radius: 10px; 
-      cursor: pointer; 
-      margin-top: 20px; 
-    }
+    body { font-family: Arial, sans-serif; background: #f8fafc; margin: 0; padding: 0; }
+    header { background: var(--preto); color: white; text-align: center; padding: 40px 20px; }
+    .logo { font-size: 100px; margin-bottom: 10px; }
+    .container { max-width: 1100px; margin: 40px auto; padding: 20px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+    button { background: var(--amarelo); color: black; border: none; padding: 14px 25px; font-size: 1rem; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; width: 100%; }
     button:hover { background: #eab308; }
-    #modal { 
-      display: none; 
-      position: fixed; 
-      top: 0; left: 0; 
-      width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.85); 
-      z-index: 1000; 
-      align-items: center; 
-      justify-content: center; 
-    }
-    .modal-content {
-      background: white; 
-      padding: 30px; 
-      border-radius: 16px; 
-      width: 90%; 
-      max-width: 580px; 
-    }
+    
+    /* Estilos dos Modais */
+    #modal, #modalVideo { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 500px; }
+    video { width: 100%; max-width: 400px; border-radius: 12px; border: 4px solid var(--amarelo); }
+    #resultado-nome { color: white; font-size: 1.5rem; margin-top: 15px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -75,116 +32,150 @@
 
   <div class="container">
     <div class="card">
-      <h2>🔄 Novo Cadastro</h2>
-      <p>Registre novos alunos no sistema</p>
-      <button onclick="abrirModal()">INICIAR CADASTRO →</button>
+      <h2>🔄 Cadastro</h2>
+      <p>Registre novos alunos</p>
+      <button onclick="abrirModal()">INICIAR CADASTRO</button>
     </div>
 
     <div class="card">
-      <h2>👥 Alunos Cadastrados</h2>
-      <p id="status">Clique em Atualizar</p>
+      <h2>📷 Reconhecimento</h2>
+      <p>Identificar e registrar entrada</p>
+      <button onclick="iniciarReconhecimento()" style="background: #3b82f6; color: white;">ABRIR CÂMERA</button>
+    </div>
+
+    <div class="card">
+      <h2>👥 Status</h2>
+      <p id="status">Verificando banco...</p>
       <button onclick="carregarAlunos()">ATUALIZAR LISTA</button>
     </div>
   </div>
 
-  <!-- Modal -->
   <div id="modal">
     <div class="modal-content">
-      <h2>Novo Cadastro de Aluno</h2><br>
-      
-      <label>Nome completo:</label>
-      <input type="text" id="nome" style="width:100%; padding:12px; margin:8px 0;" placeholder="Ex: João Silva">
-
-      <label>CGM:</label>
-      <input type="text" id="cgm" style="width:100%; padding:12px; margin:8px 0;" placeholder="Ex: 12345678">
-
-      <label>Turma:</label>
-      <input type="text" id="turma" style="width:100%; padding:12px; margin:8px 0;" placeholder="Ex: 3A">
-
-      <label>Turno:</label>
+      <h2>Novo Cadastro</h2>
+      <input type="text" id="nome" placeholder="Nome completo" style="width:95%; padding:12px; margin:8px 0;">
+      <input type="text" id="cgm" placeholder="CGM" style="width:95%; padding:12px; margin:8px 0;">
+      <input type="text" id="turma" placeholder="Turma (Ex: 3A)" style="width:95%; padding:12px; margin:8px 0;">
       <select id="turno" style="width:100%; padding:12px; margin:8px 0;">
         <option value="">Selecione o turno</option>
         <option value="Manhã">Manhã</option>
         <option value="Tarde">Tarde</option>
-        <option value="Noite">Noite</option>
       </select>
+      <input type="file" id="foto" accept="image/*" style="margin:15px 0;">
+      <button onclick="cadastrarAluno()">Salvar no Banco</button>
+      <button onclick="fecharModal()" style="background:#ccc;">Cancelar</button>
+    </div>
+  </div>
 
-      <label>Foto do aluno:</label>
-      <input type="file" id="foto" accept="image/*" style="margin:10px 0 20px;">
-
-      <button onclick="cadastrarAluno()" style="width:100%; padding:14px;">Cadastrar Aluno</button>
-      <button onclick="fecharModal()" style="width:100%; margin-top:10px; background:#ccc;">Cancelar</button>
+  <div id="modalVideo">
+    <div style="text-align: center;">
+      <video id="video" autoplay muted></video>
+      <div id="resultado-nome">Carregando IA...</div>
+      <button onclick="fecharCamera()" style="background:red; color:white; width: 200px;">Sair</button>
     </div>
   </div>
 
   <script type="module">
-    // ==================== CONEXÃO COM SUPABASE ====================
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
     const supabaseUrl = 'https://aslcwuwijpehvhtkrahp.supabase.co';
     const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFzbGN3dXdpanBlaHZodGtyYWhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwODI3NDQsImV4cCI6MjA5MTY1ODc0NH0.F8ac-a66w6TyNPtqR7jGaIYww-tQrJnkO44bxJOKDlw';
-
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const BUCKET_NAME = 'fotos-alunos';
+    
+    let faceMatcher = null;
+    let scanInterval = null;
 
-    // ==================== FUNÇÕES ====================
-    function abrirModal() {
-      document.getElementById('modal').style.display = 'flex';
+    // --- FUNÇÕES DE CADASTRO ---
+    window.abrirModal = () => document.getElementById('modal').style.display = 'flex';
+    window.fecharModal = () => document.getElementById('modal').style.display = 'none';
+
+    window.cadastrarAluno = async () => {
+      const nome = document.getElementById('nome').value;
+      const cgm = document.getElementById('cgm').value;
+      const arquivo = document.getElementById('foto').files[0];
+      
+      if(!nome || !cgm || !arquivo) return alert("Preencha tudo!");
+
+      const path = `alunos/${cgm}.jpg`;
+      await supabase.storage.from('fotos-alunos').upload(path, arquivo, {upsert:true});
+      await supabase.from('alunos').insert({ nome_aluno: nome, cgm, foto_path: path });
+      
+      alert("Cadastrado!");
+      fecharModal();
+      carregarAlunos();
     }
 
-    function fecharModal() {
-      document.getElementById('modal').style.display = 'none';
+    window.carregarAlunos = async () => {
+      const { data } = await supabase.from('alunos').select('*');
+      document.getElementById('status').textContent = `${data?.length || 0} alunos no sistema`;
+    };
+
+    // --- LÓGICA DE RECONHECIMENTO ---
+
+    async function prepararIA() {
+      const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+      document.getElementById('resultado-nome').textContent = "Baixando modelos...";
+      
+      await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+      document.getElementById('resultado-nome').textContent = "Lendo banco de alunos...";
+      const { data: alunos } = await supabase.from('alunos').select('*');
+      
+      const descritoresRotulados = await Promise.all(alunos.map(async a => {
+        const { data } = supabase.storage.from('fotos-alunos').getPublicUrl(a.foto_path);
+        const img = await faceapi.fetchImage(data.publicUrl);
+        const detec = await faceapi.detectSingleFace(img).withFaceLandmarks().withFaceDescriptor();
+        if(detec) return new faceapi.LabeledFaceDescriptors(a.nome_aluno + "|" + a.cgm, [detec.descriptor]);
+      }));
+
+      faceMatcher = new faceapi.FaceMatcher(descritoresRotulados.filter(d => d), 0.6);
+      document.getElementById('resultado-nome').textContent = "Câmera Pronta!";
     }
 
-    async function cadastrarAluno() {
-      const nome = document.getElementById('nome').value.trim();
-      const cgm = document.getElementById('cgm').value.trim();
-      const turma = document.getElementById('turma').value.trim().toUpperCase();
-      const turno = document.getElementById('turno').value;
-      const arquivoFoto = document.getElementById('foto').files[0];
+    window.iniciarReconhecimento = async () => {
+      document.getElementById('modalVideo').style.display = 'flex';
+      await prepararIA();
 
-      if (!nome || !cgm || !turma || !turno || !arquivoFoto) {
-        alert("❌ Preencha todos os campos e escolha uma foto!");
-        return;
-      }
+      const video = document.getElementById('video');
+      const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+      video.srcObject = stream;
 
-      try {
-        const filePath = `alunos/${cgm}.jpg`;
+      scanInterval = setInterval(async () => {
+        const detec = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+        
+        if (detec && faceMatcher) {
+          const match = faceMatcher.findBestMatch(detec.descriptor);
+          const [nome, cgm] = match.label.split('|');
 
-        const { error: uploadError } = await supabase.storage
-          .from(BUCKET_NAME)
-          .upload(filePath, arquivoFoto, { upsert: true });
+          if (nome !== "unknown") {
+            document.getElementById('resultado-nome').textContent = `✅ BEM-VINDO: ${nome}`;
+            registrarEntrada(nome, cgm);
+            // Pausa um pouco para mostrar o nome antes de fechar ou seguir
+          } else {
+            document.getElementById('resultado-nome').textContent = "❌ Rosto não reconhecido";
+          }
+        }
+      }, 1500);
+    };
 
-        if (uploadError) throw uploadError;
-
-        const { error: dbError } = await supabase
-          .from('alunos')
-          .insert({
-            nome_aluno: nome,
-            cgm: cgm,
-            turma: turma,
-            turno: turno,
-            foto_path: filePath
-          });
-
-        if (dbError) throw dbError;
-
-        alert(`✅ Aluno ${nome} cadastrado com sucesso!`);
-        fecharModal();
-      } catch (err) {
-        console.error(err);
-        alert("❌ Erro: " + (err.message || err));
-      }
+    async function registrarEntrada(nome, cgm) {
+      // Evita registros duplicados seguidos (opcional)
+      console.log(`Registrando entrada de ${nome}...`);
+      await supabase.from('presencas').insert({
+        aluno_id: cgm,
+        nome_aluno: nome
+      });
     }
 
-    async function carregarAlunos() {
-      const { data, error } = await supabase.from('alunos').select('*');
-      const status = document.getElementById('status');
-      if (error) status.textContent = "Erro ao carregar";
-      else status.textContent = `${data.length} alunos cadastrados`;
-    }
+    window.fecharCamera = () => {
+      clearInterval(scanInterval);
+      const stream = document.getElementById('video').srcObject;
+      if(stream) stream.getTracks().forEach(t => t.stop());
+      document.getElementById('modalVideo').style.display = 'none';
+    };
 
-    // Carrega a lista ao abrir a página
     window.onload = carregarAlunos;
   </script>
 </body>
